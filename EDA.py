@@ -5,158 +5,95 @@ import seaborn as sns
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 
-
-
-df = pd.read_csv('student_habits_performance.csv')
-
-print("Dataset")
-print(f"\n-Dimensoes:{df.shape}")
-print(f"\n-Colunas:{df.columns}")
-print(f"\n-valores nulos:{df.isnull().sum().sum()}")
-print(f"\n-duplicados:{df.duplicated().sum()}")
-
-
-df['Desempenho'] = pd.cut(df['exam_score'],
-                          bins=[0, 25, 50, 70, 100],
-                          labels=['0-25', '26-50', '51-70', '71-100'],
-                          include_lowest=True,
-                          right=True)
-
-distribuicao = df['Desempenho'].value_counts().sort_index()
-print(distribuicao)  
-
-
-
-categorical_columns =['gender', 'diet_quality', 'parental_education_level',
-    'internet_quality', 'extracurricular_participation', 'part_time_job']
-
-#VERIFICAÇAO DOS VALORES UNICOS
-""" print(df['gender'].unique())
-print(df['diet_quality'].unique())
-print(df['parental_education_level'].unique())
-print(df['internet_quality'].unique())
-print(df['extracurricular_participation'].unique())
-print(df['part_time_job'].unique()) """
-
-for col in categorical_columns:
-    if col in df.columns:
-        encoded_col=col+'_encoded'
-        le = LabelEncoder()
-        df[encoded_col] = le.fit_transform(df[col].astype(str))
-        print(f"-{encoded_col}")
-
-encoded_cols = [col for col in df.columns 
-                if col.endswith('_encoded') and col in df.columns]
-
-#VERIFICAÇAO DOS VALORES UNICOS DAS COLUNAS ENCODED
-print(df['gender_encoded'].unique())
-print(df['diet_quality_encoded'].unique())
-print(df['parental_education_level_encoded'].unique())
-print(df['internet_quality_encoded'].unique())
-print(df['extracurricular_participation_encoded'].unique())
-print(df['part_time_job_encoded'].unique())
-
-print("\nColunas codificadas criadas:")
-print(encoded_cols)
-
-final_features = [
-     # 1. Features numéricas(8)
-    'age', 'study_hours_per_day', 'social_media_hours', 'netflix_hours',
-    'attendance_percentage', 'sleep_hours', 'exercise_frequency', 'mental_health_rating',
+def preparar_dados():
     
-    # 2. Features categóricas codificadas (6)
-    #'gender_encoded', 'diet_quality_encoded', 'parental_education_level_encoded',
-    #'internet_quality_encoded', 'extracurricular_participation_encoded', 'part_time_job_encoded',
-]+ encoded_cols
+    df = pd.read_csv('student_habits_performance.csv')
 
-print("FEATURES SELECIONADAS:")
-print(f"-Total: {len(final_features)} features")
-print(f"-Numericas: {len([f for f in final_features if 'encoded' not in f])}")
-print(f"-Categoricas codificadas: {len([f for f in final_features if 'encoded' in f])}")
+    print("Dataset")
+    print(f"\n-Dimensoes:{df.shape}")
+    print(f"\n-Colunas:{df.columns}")
+    print(f"\n-valores nulos:{df.isnull().sum().sum()}")
+    print(f"\n-duplicados:{df.duplicated().sum()}")
 
 
-x=df[final_features]
-y=df['Desempenho']
+    df['Desempenho'] = pd.cut(df['exam_score'],
+                              bins=[0, 25, 50, 70, 100],
+                              labels=['0-25', '26-50', '51-70', '71-100'],
+                              include_lowest=True,
+                              right=True)
+                      
 
-#verificaçaos iniciais de x e y 
-""" print("FEATURES (x):")
-print(f"Colunas: {final_features}")
-print(f"Forma: {x.shape}")
-
-print("TARGET (y):")
-print(f"Valores unicos: {y.unique()}")
-print(f"Forma: {y.shape}") """
-
-#"test_size=0.2"-20% dos dados para teste 80% para o treino
-#"random_state=42"-garante mesma divisão sempre
-#"stratify=y"-Mantém a MESMA PROPORÇÃO das categorias em treino e teste
-X_train, X_test, y_train, y_test = train_test_split(
-    x, y, test_size=0.2, random_state=42, stratify=y
-)
-
-# Verificar se a divisão foi boa
-""" print("VERIFICACAO DA DIVISAO:")
-
-print("\nDISTRIBUIÇAO NO DATASET COMPLETO:")
-print(y.value_counts(normalize=True).round(3))
-
-print("\nDISTRIBUIÇAO NO CONJUNTO DE TREINO:")
-print(y_train.value_counts(normalize=True).round(3))
-
-print("\nDISTRIBUIÇAO NO CONJUNTO DE TESTE:")
-print(y_test.value_counts(normalize=True).round(3)) """
-
-print("DIVISAO DOS DADOS:")
-print(f"-Treino: {X_train.shape[0]} amostras")
-print(f"-Teste: {X_test.shape[0]} amostras")
-print(f"-Features: {X_train.shape[1]}") 
-
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-print("NORMALIZAÇÃO:")
-print("Dados normalizados para K-NN")
-
-faixa_para_intervalo = {
-    '0-25': '0-25 pontos',
-    '26-50': '26-50 pontos',
-    '51-70': '51-70 pontos', 
-    '71-100': '71-100 pontos'
-}
-print("\nMAPEAMENTO FAIXA->INTERVALO:")
-for faixa, intervalo in faixa_para_intervalo.items():
-    print(f"  {faixa} -> {intervalo}")
+    distribuicao = df['Desempenho'].value_counts().sort_index()
+    print(distribuicao)  
 
 
-""" def verificar_preparacao():
-    checks = {
-        "Dataset carregado": not df.empty,
-        "Target criada": 'Desempenho' in df.columns,
-        "Features selecionadas": len(final_features) > 0,
-        "Dados divididos": len(X_train) > 0 and len(X_test) > 0,
-        "Normalização feita": hasattr(scaler, 'mean_'),
-        "Mapeamento definido": len(faixa_para_intervalo) == 4
+
+    categorical_columns =['gender', 'diet_quality', 'parental_education_level',
+        'internet_quality', 'extracurricular_participation', 'part_time_job']
+
+    for col in categorical_columns:
+        if col in df.columns:
+            encoded_col=col+'_encoded'
+            le = LabelEncoder()
+            df[encoded_col] = le.fit_transform(df[col].astype(str))
+            print(f"-{encoded_col}")
+
+    encoded_cols = [col for col in df.columns 
+                    if col.endswith('_encoded') and col in df.columns]
+
+    print("\nColunas codificadas criadas:")
+    print(encoded_cols)
+
+    final_features = [
+        'age', 'study_hours_per_day', 'social_media_hours', 'netflix_hours',
+        'attendance_percentage', 'sleep_hours', 'exercise_frequency', 'mental_health_rating',
+    ] + encoded_cols
+
+    print("FEATURES SELECIONADAS:")
+    print(f"-Total: {len(final_features)} features")
+    print(f"-Numericas: {len([f for f in final_features if 'encoded' not in f])}")
+    print(f"-Categoricas codificadas: {len([f for f in final_features if 'encoded' in f])}")
+
+
+    x=df[final_features]
+    y=df['Desempenho']
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        x, y, test_size=0.2, random_state=42, stratify=y
+    )
+
+    print("DIVISAO DOS DADOS:")
+    print(f"-Treino: {X_train.shape[0]} amostras")
+    print(f"-Teste: {X_test.shape[0]} amostras")
+    print(f"-Features: {X_train.shape[1]}") 
+
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    print("NORMALIZAÇÃO:")
+    print("Dados normalizados para K-NN")
+
+    faixa_para_intervalo = {
+        '0-25': '0-25 pontos',
+        '26-50': '26-50 pontos',
+        '51-70': '51-70 pontos', 
+        '71-100': '71-100 pontos'
     }
+    print("\nMAPEAMENTO FAIXA->INTERVALO:")
+    for faixa, intervalo in faixa_para_intervalo.items():
+        print(f"  {faixa} -> {intervalo}")
     
-    print("\nVERIFICAÇÃO FINAL DA PREPARAÇÃO:")
-    for check, status in checks.items():
-        icon = "sim" if status else "nao"
-        print(f"   {icon} {check}")
     
-    return all(checks.values())
+    return {
+        'X_train': X_train, 'X_test': X_test,
+        'X_train_scaled': X_train_scaled, 'X_test_scaled': X_test_scaled,
+        'y_train': y_train, 'y_test': y_test,
+        'scaler': scaler,
+        'final_features': final_features,
+        'faixa_para_intervalo': faixa_para_intervalo,
+        'df': df
+    }
 
-# Executar verificação
-pronto_para_implementar = verificar_preparacao()
-
-if pronto_para_implementar:
-    print("\n TUDO PRONTO! Podemos implementar a Opção 1! ")
-else:
-    print("\n  Alguns elementos precisam ser preparados primeiro.") """
-""" print("RESUMO DO ESTADO ATUAL:")
-print(f"Total de alunos: {len(df)}")
-print(f"Distribuição das faixas:")
-print(df['Desempenho'].value_counts().sort_index())
-print(f"Proporções:")
-for faixa in ['0-25', '26-50', '51-70', '71-100']:
-    prop = (df['Desempenho'] == faixa).mean()
-    print(f"  - {faixa}: {prop:.1%}") """
+if __name__ == "__main__":
+    dados = preparar_dados()
+    print(" Dados preparados com sucesso!")
