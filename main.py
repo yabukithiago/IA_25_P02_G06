@@ -1,6 +1,7 @@
 from EDA import preparar_dados
 from model import train_models, comprehensive_evaluation, compare_model_performance, save_models
 from prediction_system import generate_complete_prediction_report
+from unsupervisedlearning import unsupervised_
 import time
 
 def main():
@@ -62,6 +63,9 @@ def main():
     )
     
     print("\nSISTEMA AVANÇADO PRONTO PARA USO!")
+    
+    print("\n6. UNSUPERVISED LEARNING K-MEANS")
+    unsupervised_()
 
 if __name__ == "__main__":
     main()
