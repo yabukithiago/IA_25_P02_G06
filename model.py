@@ -26,7 +26,7 @@ def optimize_hyperparameters(x_train, x_trainscaled, y_train):
         n_iter=20,
         cv=5,
         scoring='accuracy',
-        n_jobs=-1,
+        n_jobs=1, # com 1 thread para evitar problemas de paralelismo
         random_state=42
     )
     
@@ -47,7 +47,7 @@ def optimize_hyperparameters(x_train, x_trainscaled, y_train):
         knn_param_grid,
         cv=5,
         scoring='accuracy',
-        n_jobs=-1
+        n_jobs=1
     )
     
     knn_search.fit(x_trainscaled, y_train)
